@@ -5,8 +5,8 @@ import toolbox.sphinxapi as sphinx
 
 class SearchBasic(object):
 
-    SPHINX_IP = "127.0.0.1"
-    SPHINX_PORT = 9314
+    SPHINX_IP = "192.168.1.107"
+    SPHINX_PORT = 9312
 
     def _get_client(self):
         # Ini the sphinx search engine
