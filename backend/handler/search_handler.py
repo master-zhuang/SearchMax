@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 __author__ = 'Administrator'
 
 import traceback
@@ -15,7 +17,7 @@ class SearchHandler(BasicHandler, SearchBasic):
         try:
             query_str = self.get_argument("query_str")
             print(query_str)
-            result = client.Query(query_str, '*')
+            result = client.Query(query_str.encode('utf-8'), '*')
             print(result)
             self.write(str(result))
         except Exception as e:
