@@ -23,7 +23,8 @@ class Application(tornado.web.Application):
         }
         handlers = [
             (r"/", IndexHandler),
-            (r"/search", SearchHandler),
+            (r"/api/comments",SearchHandler ),
+            (r"/search", SearchRenderHandler),
             (r"/version", VersionHandler),
             (r"/assets/(.*)", tornado.web.StaticFileHandler, dict(path=settings['static_path'])),
         ]

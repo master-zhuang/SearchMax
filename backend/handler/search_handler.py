@@ -2,12 +2,12 @@
 
 __author__ = 'Administrator'
 
-import traceback
+import traceback,json
 from backend.handler.basic_handler import BasicHandler
 from backend.utils.search import SearchBasic
 
 
-class SearchHandler(BasicHandler, SearchBasic):
+class SearchSphinxHandler(BasicHandler, SearchBasic):
 
     def get(self):
         client = self._get_client()
@@ -25,5 +25,17 @@ class SearchHandler(BasicHandler, SearchBasic):
         finally:
             client.Close()
 
+
+class SearchHandler(BasicHandler):
+
+    def get(self):
+        results = [{"text": "Hey there!", "id": 1388534400000, "author": "Pete Hunt"}, {"text": "React is *great*!", "id": 1420070400000, "author": "Paul Shannessy"}]
+        self.write(json.dumps(results))
+
+
+class SearchRenderHandler(BasicHandler):
+
+    def get(self):
+        self.render("web/search_result.html")
 
 
