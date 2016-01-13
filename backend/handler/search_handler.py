@@ -29,7 +29,10 @@ class SearchSphinxHandler(BasicHandler, SearchBasic):
 class SearchHandler(BasicHandler):
 
     def get(self):
-        results = [{"text": "Hey there!", "id": 1388534400000,}, {"text": "React is *great*!", "id": 1420070400000}]
+        results = [{"title": "Java Engineer", "desc": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ut orci urna. Morbi blandit enim eget risus posuere dapibus. Vestibulum velit nisi, tempus in placerat non, auctor eu purus. Morbi suscipit porta libero, ac tempus tellus consectetur non. Praesent eget consectetur nunc. Aliquam erat volutpat. Suspendisse ultrices eros eros, consectetur facilisis urna posuere id."},\
+                   {"title": "Web Design - 1 - Introduction to Web Design", "desc": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ut orci urna. Morbi blandit enim eget risus posuere dapibus. Vestibulum velit nisi, tempus in placerat non, auctor eu purus. Morbi suscipit porta libero, ac tempus tellus consectetur non. Praesent eget consectetur nunc. Aliquam erat volutpat. Suspendisse ultrices eros eros, consectetur facilisis urna posuere id."},\
+                   {"title": "Web Design - Website Design Tutorials, Articles", "desc": "Lorem ipsum dolor sit amet, consectetur adipiscing elit."}
+                   ]
         self.write(json.dumps(results))
 
 
