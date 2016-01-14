@@ -2,6 +2,8 @@
  * Created by zhuangxk on 1/12/16.
  */
 
+var PER_PAGE = 5;
+var START_PAGE = 1;
 
 var SearchBox = React.createClass({
 
@@ -78,7 +80,7 @@ var SearchBanner = React.createClass({
         if (!query_str) {
             return;
         }
-        this.props.onSearchSubmit({query: query_str});
+        this.props.onSearchSubmit({query: query_str, start_page:START_PAGE, per_page:PER_PAGE});
         //this.setState({query: ''});
     },
 
@@ -307,7 +309,7 @@ ReactDOM.render(
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 var URL = 'http://developer.echonest.com/api/v4/song/search?api_key=JE2S42FJUGYGJFVSE';
-var PER_PAGE = 2;
+
 
 var Paginator = React.createClass({
     propTypes: {
@@ -334,10 +336,8 @@ var Paginator = React.createClass({
     goTo: function(page) {
         this.setState({currentPage: page});
     },
-
     onClickNext: function() {
         var page = this.state.currentPage;
-
         if (page < this.props.max) {
             this.goTo(page + 1);
         }
@@ -394,9 +394,11 @@ var Paginator = React.createClass({
 });
 
 var App = React.createClass({
+
     componentDidMount: function() {
         this.onChangePage(1);
     },
+
     getData: function(page) {
         return $.getJSON(URL, {
             artist: 'the postal service',
@@ -406,12 +408,14 @@ var App = React.createClass({
             return result.response.songs;
         });
     },
+
     getInitialState: function() {
         return {
             items: [],
             loading: true
         };
     },
+
     onChangePage: function(page) {
         this.setState({
             loading: true
@@ -424,12 +428,13 @@ var App = React.createClass({
             });
         }.bind(this));
     },
+
     renderItem: function(item) {
         return <li key={item.id}>{item.title}</li>;
     },
+
     render: function() {
         var s = this.state;
-
         return (
             <div>
                 <h1>Paginator example</h1>
@@ -441,7 +446,9 @@ var App = React.createClass({
             </div>
         );
     }
+
 });
+
 
 React.render(<App />, document.getElementById('search-pages'));
 
