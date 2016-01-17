@@ -8,32 +8,23 @@ var START_PAGE = 1;
 var SearchBox = React.createClass({
 
     getInitialState: function() {
-        return {data: []};
+        return {data: [], search:{} };
     },
 
     loadSearchFromServer: function() {
-        $.ajax({
-            url: this.props.url,
-            dataType: 'json',
-            cache: false,
-            success: function (data) {
-                this.setState({data: data});
-            }.bind(this),
-            error: function (xhr, status, err) {
-                console.error(this.props.url, status, err.toString());
-            }.bind(this)
-        });
+       this.handleSearchSubmit({query:'', start_page:START_PAGE, per_page:PER_PAGE})
     },
 
     handleSearchSubmit: function(search) {
-        search.id = Date.now();
+        search.sid = Date.now();
         $.ajax({
           url: this.props.url,
           dataType: 'json',
           type: 'GET',
           data: search,
           success: function(data) {
-            this.setState({data: data});
+            this.setState({data: data, search:search});
+              console.log({"ajax_return":this.state});
           }.bind(this),
           error: function(xhr, status, err) {
             console.error(this.props.url, status, err.toString());
@@ -50,7 +41,7 @@ var SearchBox = React.createClass({
         return (
             <div>
                 <SearchBanner onSearchSubmit={this.handleSearchSubmit}/>
-                <SearchResult data={this.state.data}/>
+                <SearchResult data={this.state.data} search={this.state.search} onPageSubmit={this.handleSearchSubmit}/>
             </div>
         );
     }
@@ -61,11 +52,11 @@ var SearchBox = React.createClass({
 var SearchBanner = React.createClass({
 
     getInitialState: function () {
-            return {query: ''};
+            return {query:'', start_page:START_PAGE, per_page:PER_PAGE};
         },
 
     handleTextChange: function (e) {
-            this.setState({query: e.target.value});
+            this.setState({query:e.target.value});
         },
 
     handlerEnterSubmit: function(event){
@@ -76,12 +67,10 @@ var SearchBanner = React.createClass({
 
     handleSubmit: function (e) {
         e.preventDefault();
-        var query_str = this.state.query.trim();
-        if (!query_str) {
+        if (!this.state.query.trim()) {
             return;
         }
-        this.props.onSearchSubmit({query: query_str, start_page:START_PAGE, per_page:PER_PAGE});
-        //this.setState({query: ''});
+        this.props.onSearchSubmit(this.state);
     },
 
     render: function() {
@@ -125,7 +114,7 @@ var SearchResult = React.createClass({
                 </div>
                 <div className="col-md-10">
                     <SearchList data={this.props.data}/>
-                    <SearchPagination/>
+                    <SearchPagination search={this.props.search} onPageSubmit={this.props.onPageSubmit}/>
                 </div>
             </div>
         </div>
@@ -266,51 +255,6 @@ var SearchItem = React.createClass({
 });
 
 
-var SearchPagination = React.createClass({
-
-  render: function() {
-    return (
-        <div className="text-left">
-            <ul className="pagination">
-                <li><a href="#">«</a></li>
-                <li className="active"><a href="#">1</a></li>
-                <li><a href="#">2</a></li>
-                <li><a href="#">3</a></li>
-                <li><a href="#">4</a></li>
-                <li><a href="#">5</a></li>
-                <li><a href="#">6</a></li>
-                <li><a href="#">7</a></li>
-                <li><a href="#">8</a></li>
-                <li><a href="#">9</a></li>
-                <li><a href="#">10</a></li>
-                <li><a href="#">...</a></li>
-                <li><a href="#">199</a></li>
-                <li><a href="#">200</a></li>
-                <li><a href="#">»</a></li>
-            </ul>
-        </div>
-    );
-  }
-
-});
-
-
-ReactDOM.render(
-
-  <SearchBox url="/api/search" call_interval={3600000} />,
-  document.getElementById('search-box')
-
-);
-
-
-
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-var URL = 'http://developer.echonest.com/api/v4/song/search?api_key=JE2S42FJUGYGJFVSE';
-
-
 var Paginator = React.createClass({
     propTypes: {
         max: React.PropTypes.number.isRequired,
@@ -393,56 +337,20 @@ var Paginator = React.createClass({
     }
 });
 
-var App = React.createClass({
 
-    componentDidMount: function() {
-        this.onChangePage(1);
-    },
-
-    getData: function(page) {
-        return $.getJSON(URL, {
-            artist: 'the postal service',
-            results: PER_PAGE,
-            start: PER_PAGE * (page - 1)
-        }).then(function(result) {
-            return result.response.songs;
-        });
-    },
-
-    getInitialState: function() {
-        return {
-            items: [],
-            loading: true
-        };
-    },
+var SearchPagination = React.createClass({
 
     onChangePage: function(page) {
-        this.setState({
-            loading: true
-        });
-
-        this.getData(page).then(function(items) {
-            this.setState({
-                items: items,
-                loading: false
-            });
-        }.bind(this));
-    },
-
-    renderItem: function(item) {
-        return <li key={item.id}>{item.title}</li>;
+        var new_search = this.props.search;
+        new_search.start_page = page;
+        console.log(new_search);
+        this.props.onPageSubmit(new_search);
     },
 
     render: function() {
-        var s = this.state;
         return (
             <div>
-                <h1>Paginator example</h1>
                 <Paginator max={10} onChange={this.onChangePage} />
-                {s.loading
-                    ? <div>Loading...</div>
-                    : <ul>{s.items.map(this.renderItem)}</ul>
-                }
             </div>
         );
     }
@@ -450,6 +358,9 @@ var App = React.createClass({
 });
 
 
-React.render(<App />, document.getElementById('search-pages'));
+ReactDOM.render(
 
+  <SearchBox url="/api/search" call_interval={3600000} />,
+  document.getElementById('search-box')
 
+);
