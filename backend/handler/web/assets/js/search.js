@@ -67,6 +67,7 @@ var SearchBanner = React.createClass({
 
     handleSubmit: function (e) {
         e.preventDefault();
+        this.setState({start_page:START_PAGE});
         if (!this.state.query.trim()) {
             return;
         }
@@ -273,8 +274,7 @@ var Paginator = React.createClass({
     },
     getInitialState: function() {
         return {
-            currentPage: 1,
-            items: []
+            currentPage: this.props.currentPage
         };
     },
     goTo: function(page) {
@@ -340,17 +340,22 @@ var Paginator = React.createClass({
 
 var SearchPagination = React.createClass({
 
+    getInitialState: function() {
+        return {
+            search: this.props.search
+        };
+    },
+
     onChangePage: function(page) {
-        var new_search = this.props.search;
-        new_search.start_page = page;
-        console.log(new_search);
-        this.props.onPageSubmit(new_search);
+        this.state.search.start_page = page;
+        console.log(this.state.search);
+        this.props.onPageSubmit(this.state.search);
     },
 
     render: function() {
         return (
             <div>
-                <Paginator max={10} onChange={this.onChangePage} />
+                <Paginator max={10} onChange={this.onChangePage} currentPage={this.state.search.start_page}/>
             </div>
         );
     }
