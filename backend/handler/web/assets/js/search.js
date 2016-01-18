@@ -8,11 +8,11 @@ var START_PAGE = 1;
 var SearchBox = React.createClass({
 
     getInitialState: function() {
-        return {data: [], search:{} };
+        return {data: [], search:{query:'', start_page:START_PAGE, per_page:PER_PAGE}};
     },
 
     loadSearchFromServer: function() {
-       this.handleSearchSubmit({query:'', start_page:START_PAGE, per_page:PER_PAGE})
+       this.handleSearchSubmit(this.state.search)
     },
 
     handleSearchSubmit: function(search) {
@@ -115,7 +115,7 @@ var SearchResult = React.createClass({
                 </div>
                 <div className="col-md-10">
                     <SearchList data={this.props.data}/>
-                    <SearchPagination search={this.props.search} onPageSubmit={this.props.onPageSubmit}/>
+                    <Paginator max={10} search={this.props.search} onPageSubmit={this.props.onPageSubmit}/>
                 </div>
             </div>
         </div>
@@ -200,7 +200,7 @@ var SearchList = React.createClass({
         console.log(this.props.data);
     return (
         <div>
-            <span className="results-number">共计3345个职位，耗时0.023秒</span>
+            <span className="results-number">共计3345，耗时0.023秒</span>
             {searchNodes}
             <div className="margin-bottom-30"></div>
         </div>
@@ -257,50 +257,65 @@ var SearchItem = React.createClass({
 
 
 var Paginator = React.createClass({
+
     propTypes: {
         max: React.PropTypes.number.isRequired,
         maxVisible: React.PropTypes.number,
         onChange: React.PropTypes.func.isRequired
     },
+
     componentDidUpdate: function(prevProps, prevState) {
-        if (prevState.currentPage !== this.state.currentPage) {
-            this.props.onChange(this.state.currentPage);
+        if (prevState.start_page !== this.state.start_page) {
+            this.onChangePage(this.state.start_page);
         }
     },
+
     getDefaultProps: function() {
         return {
             maxVisible: 5
         };
     },
+
     getInitialState: function() {
         return {
-            currentPage: this.props.currentPage
+            start_page: START_PAGE
         };
     },
+
     goTo: function(page) {
-        this.setState({currentPage: page});
+        this.setState({start_page: page});
     },
+
     onClickNext: function() {
-        var page = this.state.currentPage;
+        var page = this.state.start_page;
         if (page < this.props.max) {
             this.goTo(page + 1);
         }
     },
     onClickPrev: function() {
-        if (this.state.currentPage > 1) {
-            this.goTo(this.state.currentPage - 1);
+        if (this.state.start_page > 1) {
+            this.goTo(this.state.start_page - 1);
         }
     },
+
+    onChangePage: function(page) {
+        var change_page_search = this.props.search;
+        change_page_search.start_page = page;
+        this.setState({start_page: page});
+        console.log(this.state);
+        this.props.onPageSubmit(change_page_search);
+    },
+
     render: function() {
         var className = this.props.className || '',
             p = this.props,
             s = this.state,
             skip = 0;
 
-        if (s.currentPage > p.maxVisible - 1 && s.currentPage < p.max) {
-            skip = s.currentPage - p.maxVisible + 1;
-        } else if (s.currentPage === p.max) {
-            skip = s.currentPage - p.maxVisible;
+        if (s.start_page > p.maxVisible - 1 && s.start_page < p.max) {
+            skip = s.start_page - p.maxVisible + 1;
+        } else if (s.start_page === p.max) {
+            skip = s.start_page - p.maxVisible;
         }
 
         var iterator = Array.apply(null, Array(p.maxVisible)).map(function(v, i) {
@@ -310,7 +325,7 @@ var Paginator = React.createClass({
         return (
             <nav>
                 <ul className={'pagination ' + className}>
-                    <li className={s.currentPage === 1 ? 'disabled' : ''}>
+                    <li className={s.start_page === 1 ? 'disabled' : ''}>
                         <a href="#" onClick={this.onClickPrev}>
                             <span aria-hidden="true">&laquo;</span>
                             <span className="sr-only">Prev</span>
@@ -320,12 +335,12 @@ var Paginator = React.createClass({
                         return (
                             <li key={page}
                                 onClick={this.goTo.bind(this, page)}
-                                className={s.currentPage === page ? 'active' : ''}>
+                                className={s.start_page === page ? 'active' : ''}>
                                 <a href="#">{page}</a>
                             </li>
                         );
                     }, this)}
-                    <li className={s.currentPage === p.max ? 'disabled' : ''}>
+                    <li className={s.start_page === p.max ? 'disabled' : ''}>
                         <a href="#" onClick={this.onClickNext}>
                             <span aria-hidden="true">&raquo;</span>
                             <span className="sr-only">Next</span>
@@ -335,31 +350,6 @@ var Paginator = React.createClass({
             </nav>
         );
     }
-});
-
-
-var SearchPagination = React.createClass({
-
-    getInitialState: function() {
-        return {
-            search: this.props.search
-        };
-    },
-
-    onChangePage: function(page) {
-        this.state.search.start_page = page;
-        console.log(this.state.search);
-        this.props.onPageSubmit(this.state.search);
-    },
-
-    render: function() {
-        return (
-            <div>
-                <Paginator max={10} onChange={this.onChangePage} currentPage={this.state.search.start_page}/>
-            </div>
-        );
-    }
-
 });
 
 
